@@ -9,53 +9,105 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
-    var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+    @State private var showExchangeInfo = false
+    @State var leftAmount = ""
+    @State var rightAmount = ""
+    
+    
+    var body: some View{
+        
+        ZStack{
+            Image(.background)
+                .resizable()
+                .ignoresSafeArea()
+            
+            VStack{
+                Image(.prancingpony)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 200)
+                
+                Text("Currency Exchange")
+                    .foregroundStyle(.white)
+                    .font(.largeTitle)
+                
+                
+                
+                HStack{
+                    VStack{
+                        HStack{
+                            Image(.silverpiece)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 33)
+                            
+                            Text("Silver Piece")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
+                        .padding(.bottom, -5)
+                        
+                        TextField(
+                            "Amount",
+                            text: $leftAmount
+                        )
+                        .textFieldStyle(.roundedBorder)
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    
+                    
+                    Image(systemName: "equal")
+                        .font(.largeTitle)
+                        .foregroundStyle(.white)
+                        .symbolEffect(.pulse)
+                    
+                    
+                    VStack{
+                        HStack{
+                            
+                            Text("Gold Piece")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                            
+                            Image(.goldpiece)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 33)
+                        }
+                        .padding(.bottom, -5)
+                        
+                        TextField(
+                            "Amont",
+                            text: $rightAmount
+                        )
+                        .textFieldStyle(.roundedBorder)
+                        .multilineTextAlignment(.trailing)
                     }
+                    
+                }
+                .padding()
+                .background(.black.opacity(0.5))
+                .clipShape(.capsule)
+                
+                Spacer()
+                
+                HStack {
+                    Spacer()
+                    
+                    Button{
+                        showExchangeInfo.toggle()
+                    }label: {
+                        Image(systemName: "info.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.trailing)
                 }
             }
-        } detail: {
-            Text("Select an item")
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
-        }
+        
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

@@ -1,9 +1,3 @@
-//
-//  Item.swift
-//  LOTRConverter
-//
-//  Created by Gaurav Rawat on 2024-02-06.
-//
 
 import Foundation
 import SwiftData
