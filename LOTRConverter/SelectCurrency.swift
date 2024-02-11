@@ -43,11 +43,13 @@ struct SelectCurrency: View {
                     Text("DONE")
                 }
                 .foregroundColor(.white)
-                .font(.largeTitle)
+                .font(.title)
                 .fontWeight(.bold)
                 .buttonStyle(.borderedProminent)
                 .tint(.brown)
                 .padding(.top)
+                
+                Spacer()
             }
             .padding()
             .multilineTextAlignment(.center)
