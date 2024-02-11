@@ -9,8 +9,9 @@ import SwiftUI
 
 struct SelectCurrency: View {
     @Environment(\.dismiss) var dismiss
-    @State var selectedCurrencyFrom: CurrencyEnum
-    @State var selectedCurrencyTo: CurrencyEnum
+    
+    @Binding var selectedCurrencyFrom: CurrencyEnum
+    @Binding var selectedCurrencyTo: CurrencyEnum
     
     var body: some View {
         ZStack{
@@ -24,58 +25,16 @@ struct SelectCurrency: View {
                     .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                     .foregroundStyle(.black)
                 
-                LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]){
-                    ForEach(CurrencyEnum.allCases){ currency in
-                        
-                        if(selectedCurrencyFrom == currency){
-                            Currency(currencyImage: currency.image, currencyText: currency.name)
-                                .shadow(color: /*@START_MENU_TOKEN@*/.black/*@END_MENU_TOKEN@*/, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-                                .overlay{
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(lineWidth: 3)
-                                        .opacity(0.5)
-                                        .foregroundColor(.black)
-                                }
-                        }
-                        else {
-                            Currency(currencyImage: currency.image, currencyText: currency.name)
-                                .onTapGesture {
-                                    selectedCurrencyFrom = currency
-                                }
-                        }
-                    }
-                    
-                }
+                CurrencyGridView(selectedCurrency: $selectedCurrencyFrom)
 
                 
                 Text("Select the currncy you would like to convert to: ")
                     .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                     .foregroundStyle(.black)
                     
-                LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]){
-                    ForEach(CurrencyEnum.allCases){ currency in
-                        
-                        if(selectedCurrencyTo == currency){
-                            Currency(currencyImage: currency.image, currencyText: currency.name)
-                                .shadow(color: /*@START_MENU_TOKEN@*/.black/*@END_MENU_TOKEN@*/, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-                                .overlay{
-                                    RoundedRectangle(cornerRadius: 25)
-                                        .stroke(lineWidth: 3)
-                                        .opacity(0.5)
-                                        .foregroundColor(.black)
-                                }
-                        }
-                        else {
-                            Currency(currencyImage: currency.image, currencyText: currency.name)
-                                .onTapGesture {
-                                    selectedCurrencyTo = currency
-                                }
-                        }
-                    }
-                }
+                CurrencyGridView(selectedCurrency: $selectedCurrencyTo)
 
 
-                
                 Spacer()
                 
                 Button{
@@ -94,14 +53,16 @@ struct SelectCurrency: View {
             .multilineTextAlignment(.center)
         }
     }
-    
-
-    
 }
 
 #Preview {
-    SelectCurrency(selectedCurrencyFrom: .silverPiece, selectedCurrencyTo: .silverPiece)
+    SelectCurrency(selectedCurrencyFrom: .constant(.silverPiece), selectedCurrencyTo: .constant(.goldPiece))
 }
+
+
+
+
+
 
 struct Currency: View {
     @State var currencyImage: ImageResource
@@ -117,12 +78,13 @@ struct Currency: View {
             Text(currencyText)
                 .padding(3)
                 .font(.caption)
+                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
                 .background(.brown.opacity(0.75))
                 .foregroundColor(.black)
         }
         .padding(3)
         .background(.brown)
-        .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
+        .frame(width: 100, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
         .clipShape(.rect(cornerRadius: 25))
     }
 }
@@ -156,6 +118,43 @@ enum CurrencyEnum: Double, CaseIterable, Identifiable{
         case .goldPiece: "Gold Piece"
         }
     }
+    
+    func convertCurrency(_ amountString: String, to currency: CurrencyEnum) -> String{
+        
+        guard let doubleAmount = Double(amountString) else{
+            return ""
+        }
+        
+        let convertedValue = (doubleAmount / self.rawValue) * currency.rawValue
+        
+        return String(format: "%.2f", convertedValue)
+    }
 }
 
-
+struct CurrencyGridView: View {
+    @Binding var selectedCurrency: CurrencyEnum
+    
+    var body: some View {
+        LazyVGrid(columns: [GridItem(), GridItem(), GridItem()]){
+            ForEach(CurrencyEnum.allCases){ currency in
+                
+                if selectedCurrency == currency {
+                    Currency(currencyImage: currency.image, currencyText: currency.name)
+                        .shadow(color: /*@START_MENU_TOKEN@*/.black/*@END_MENU_TOKEN@*/, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+                        .overlay{
+                            RoundedRectangle(cornerRadius: 25)
+                                .stroke(lineWidth: 3)
+                                .opacity(0.5)
+                                .foregroundColor(.black)
+                        }
+                }
+                else {
+                    Currency(currencyImage: currency.image, currencyText: currency.name)
+                        .onTapGesture {
+                            selectedCurrency = currency
+                        }
+                }
+            }
+        }
+    }
+}

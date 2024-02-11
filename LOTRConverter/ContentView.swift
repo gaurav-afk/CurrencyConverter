@@ -10,9 +10,16 @@ import SwiftData
 
 struct ContentView: View {
     @State private var showExchangeInfo = false
+    @State var showSelectCurrency = false
+    
     @State var leftAmount = ""
     @State var rightAmount = ""
     
+    @FocusState var leftTyping
+    @FocusState var rightTyping
+    
+    @State var leftCurrency: CurrencyEnum = .silverPiece
+    @State var rightCurrency: CurrencyEnum = .goldPiece
     
     var body: some View{
         
@@ -31,27 +38,35 @@ struct ContentView: View {
                     .foregroundStyle(.white)
                     .font(.largeTitle)
                 
-                
-                
+            
                 HStack{
                     VStack{
                         HStack{
-                            Image(.silverpiece)
+                            Image(leftCurrency.image)
                                 .resizable()
                                 .scaledToFit()
                                 .frame(height: 33)
                             
-                            Text("Silver Piece")
+                            Text(leftCurrency.name)
                                 .font(.headline)
                                 .foregroundStyle(.white)
                         }
                         .padding(.bottom, -5)
+                        .onTapGesture {
+                            showSelectCurrency.toggle()
+                        }
                         
                         TextField(
                             "Amount",
                             text: $leftAmount
                         )
                         .textFieldStyle(.roundedBorder)
+                        .focused($leftTyping)
+                        .onChange(of: leftAmount) {
+                            if(leftTyping){
+                                rightAmount = leftCurrency.convertCurrency(leftAmount, to: rightCurrency)
+                            }
+                        }
                     }
                     
                     
@@ -64,23 +79,32 @@ struct ContentView: View {
                     VStack{
                         HStack{
                             
-                            Text("Gold Piece")
+                            Text(rightCurrency.name)
                                 .font(.headline)
                                 .foregroundStyle(.white)
                             
-                            Image(.goldpiece)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 33)
+                                Image(rightCurrency.image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 33)
                         }
                         .padding(.bottom, -5)
+                        .onTapGesture {
+                            showSelectCurrency.toggle()
+                        }
                         
                         TextField(
-                            "Amont",
+                            "Amount",
                             text: $rightAmount
                         )
                         .textFieldStyle(.roundedBorder)
-                        .multilineTextAlignment(.trailing)
+                        .focused($rightTyping)
+                        .onChange(of: rightAmount) {
+                            if(rightTyping){
+                                leftAmount = rightCurrency.convertCurrency(rightAmount, to: leftCurrency)
+                            }
+                        }
+                        
                     }
                     
                 }
@@ -104,6 +128,9 @@ struct ContentView: View {
                     .sheet(isPresented: $showExchangeInfo, content: {
                         ExchangeInfo()
                     })
+                    .sheet(isPresented: $showSelectCurrency, content: {
+                        SelectCurrency(selectedCurrencyFrom: $leftCurrency, selectedCurrencyTo: $rightCurrency)
+                    })
                 }
             }
         }
@@ -112,5 +139,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(leftAmount: "", rightAmount: "", leftCurrency: .silverPiece, rightCurrency: .goldPiece)
 }
+
+
