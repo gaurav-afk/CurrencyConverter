@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import TipKit
 
 struct ContentView: View {
     @State private var showExchangeInfo = false
@@ -40,34 +41,8 @@ struct ContentView: View {
                 
             
                 HStack{
-                    VStack{
-                        HStack{
-                            Image(leftCurrency.image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 33)
-                            
-                            Text(leftCurrency.name)
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                        }
-                        .padding(.bottom, -5)
-                        .onTapGesture {
-                            showSelectCurrency.toggle()
-                        }
-                        
-                        TextField(
-                            "Amount",
-                            text: $leftAmount
-                        )
-                        .textFieldStyle(.roundedBorder)
-                        .focused($leftTyping)
-                        .onChange(of: leftAmount) {
-                            if(leftTyping){
-                                rightAmount = leftCurrency.convertCurrency(leftAmount, to: rightCurrency)
-                            }
-                        }
-                    }
+                    CurrencyView(Currency: $leftCurrency, amount: $leftAmount, typing: _leftTyping, showSelectCurrency: $showSelectCurrency)
+                    .popoverTip(CurrencyTip(), arrowEdge: .bottom)
                     
                     
                     Image(systemName: "equal")
@@ -76,37 +51,7 @@ struct ContentView: View {
                         .symbolEffect(.pulse)
                     
                     
-                    VStack{
-                        HStack{
-                            
-                            Text(rightCurrency.name)
-                                .font(.headline)
-                                .foregroundStyle(.white)
-                            
-                                Image(rightCurrency.image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 33)
-                        }
-                        .padding(.bottom, -5)
-                        .onTapGesture {
-                            showSelectCurrency.toggle()
-                        }
-                        
-                        TextField(
-                            "Amount",
-                            text: $rightAmount
-                        )
-                        .textFieldStyle(.roundedBorder)
-                        .focused($rightTyping)
-                        .onChange(of: rightAmount) {
-                            if(rightTyping){
-                                leftAmount = rightCurrency.convertCurrency(rightAmount, to: leftCurrency)
-                            }
-                        }
-                        
-                    }
-                    
+                    CurrencyView(Currency: $rightCurrency, amount: $rightAmount, typing: _rightTyping, showSelectCurrency: $showSelectCurrency)
                 }
                 .padding()
                 .background(.black.opacity(0.5))
@@ -125,6 +70,25 @@ struct ContentView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.trailing)
+                    .task {
+                        try? Tips.configure()
+                    }
+                    .onChange(of: leftAmount) {
+                        if(leftTyping){
+                            rightAmount = leftCurrency.convertCurrency(leftAmount, to: rightCurrency)
+                        }
+                    }
+                    .onChange(of: rightAmount) {
+                        if(rightTyping){
+                            leftAmount = rightCurrency.convertCurrency(rightAmount, to: leftCurrency)
+                        }
+                    }
+                    .onChange(of: leftCurrency){
+                            leftAmount = rightCurrency.convertCurrency(rightAmount, to: leftCurrency)
+                    }
+                    .onChange(of: rightCurrency){
+                            rightAmount = leftCurrency.convertCurrency(leftAmount, to: rightCurrency)
+                    }
                     .sheet(isPresented: $showExchangeInfo, content: {
                         ExchangeInfo()
                     })
@@ -133,6 +97,11 @@ struct ContentView: View {
                     })
                 }
             }
+            
+        }
+        .onTapGesture {
+            leftTyping = false
+            rightTyping = false
         }
         
     }
@@ -143,3 +112,38 @@ struct ContentView: View {
 }
 
 
+
+struct CurrencyView: View {
+    @Binding var Currency: CurrencyEnum
+    @Binding var amount: String
+    @FocusState var typing
+    @Binding var showSelectCurrency: Bool
+    
+    var body: some View {
+        VStack{
+            HStack{
+                Image(Currency.image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 33)
+                
+                Text(Currency.name)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+            }
+            .padding(.bottom, -5)
+            .onTapGesture {
+                showSelectCurrency.toggle()
+            }
+            
+            TextField(
+                "Amount",
+                text: $amount
+            )
+            .keyboardType(.decimalPad)
+            .textFieldStyle(.roundedBorder)
+            .focused($typing)
+            
+        }
+    }
+}

@@ -27,6 +27,9 @@ struct ExchangeInfo: View {
                     .font(.title2)
                     .padding()
                 
+                ExchangeRate(leftCurrencyRate: "1 Ring", leftCurrencyImage: .thering,
+                    rightCurrencyRate: "1000 Gold Piece", rightCurrencyImage: .goldpiece)
+                
                 ExchangeRate(leftCurrencyRate: "1 Gold Piece", leftCurrencyImage: .goldpiece,
                                   rightCurrencyRate: "4 Gold Pennies", rightCurrencyImage: .goldpenny)
                 
@@ -39,13 +42,14 @@ struct ExchangeInfo: View {
                 ExchangeRate(leftCurrencyRate: "1 Silver Penny", leftCurrencyImage: .silverpenny,
                                   rightCurrencyRate: "100 Copper Pennies", rightCurrencyImage: .copperpenny)
                               
+                
                 Button{
                         dismiss()
                 }label: {
                     Text("DONE")
                 }
                 .foregroundColor(.white)
-                .font(.largeTitle)
+                .font(.title)
                 .fontWeight(.bold)
                 .buttonStyle(.borderedProminent)
                 .tint(.brown)

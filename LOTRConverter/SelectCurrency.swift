@@ -96,26 +96,29 @@ enum CurrencyEnum: Double, CaseIterable, Identifiable{
     case silverPiece = 16
     case goldPenny = 4
     case goldPiece = 1
+    case theRing = 0.001
     
     var id: CurrencyEnum { self }
     
     var image: ImageResource{
         switch self{
-        case .copperPenny: .copperpenny
-        case .silverPenny: .silverpenny
-        case .silverPiece: .silverpiece
-        case .goldPenny: .goldpenny
-        case .goldPiece: .goldpiece
+            case .copperPenny: .copperpenny
+            case .silverPenny: .silverpenny
+            case .silverPiece: .silverpiece
+            case .goldPenny: .goldpenny
+            case .goldPiece: .goldpiece
+            case .theRing: .thering
         }
     }
     
     var name: String{
         switch self{
-        case .copperPenny: "Copper Penny"
-        case .silverPenny: "Silver Penny"
-        case .silverPiece: "Silver Piece"
-        case .goldPenny: "Gold Penny"
-        case .goldPiece: "Gold Piece"
+            case .copperPenny: "Copper Penny"
+            case .silverPenny: "Silver Penny"
+            case .silverPiece: "Silver Piece"
+            case .goldPenny: "Gold Penny"
+            case .goldPiece: "Gold Piece"
+            case .theRing: "The Ring"
         }
     }
     
